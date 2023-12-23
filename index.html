@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LEWEATHER</title>
+    <link rel="stylesheet" href="./index.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script type="module" src="./apiMethods.js"></script>
+
+    <script type="module" src="./Main.js"></script>
+  </head>
+  <body>
+    <svg style="display: none" aria-hidden="true">
+      <defs>
+        <symbol viewBox="0 0 32 32" id="wind-direction">
+          <path
+            d="M16.8 6.6v-3.6l2.1 2.1 1.1-1.1-4-4-4 4 1.1 1.1 2.1-2.1v3.6"
+          ></path>
+          <circle
+            fill="none"
+            stroke="#000000"
+            stroke-width="1"
+            cx="16"
+            cy="16"
+            r="9.5"
+          ></circle>
+        </symbol>
+        <symbol viewBox="0 0 16 16" id="icon-rain" width="100%" height="100%">
+          <rect fill="none"></rect>
+          <g stroke="none" stroke-width="1" fill-rule="evenodd">
+            <g fill="#C0C0C">
+              <path
+                d="M0,13.0671022 C0,14.6874229 1.31364379,16.0005334 2.93289776,16.0005334 C4.23640788,16.0005334 5.34044468,15.149305 5.72232408,13.9727324 L5.72552418,13.9759325 L6.93356445,9.0669689 L2.1371379,10.2456749 C0.904030134,10.5934198 0,11.7225241 0,13.0671022 L0,13.0671022 Z M11.2041068,3.84546152 C9.97099903,4.19320644 9.0669689,5.32284409 9.0669689,6.66635555 C9.0669689,8.28720957 10.379546,9.60032001 11.9998667,9.60032001 C13.3033768,9.60032001 14.4068802,8.74909164 14.789293,7.57305244 L14.7914264,7.57518584 L16,2.66675556 L11.2041068,3.84546152 Z M1.06670222,3.99959999 C1.06670222,5.61992066 2.37927931,6.93356445 4.00013334,6.93356445 C5.30364345,6.93356445 6.40768026,6.08180273 6.78955965,4.90576353 L6.79169306,4.90789693 L8.00026668,0 L3.20330678,1.17923931 C1.97126571,1.52645088 1.06670222,2.65608854 1.06670222,3.99959999 L1.06670222,3.99959999 Z"
+              ></path>
+            </g>
+          </g>
+        </symbol>
+      </defs>
+    </svg>
+
+    <header class="flx jc-center">
+      <div class="header-max">
+        <span class="light">LE</span><span class="dark">WEATHER</span>
+        <div class="header-min">a first foray into asynchronicity</div>
+      </div>
+    </header>
+
+    <section id="locations" class="flx jc-center ai-center">
+      <div class="loading weather" style="display: none"></div>
+      <datalist id="autocompleteOff"> </datalist>
+
+      <input
+        class="button-12"
+        type="text"
+        autocomplete="off"
+        list="autocompleteOff"
+        id="location"
+        name="location"
+        placeholder="Enter a place to see weather..."
+      />
+
+      <div class="instructions flx col ai-center jc-center">
+        <div>or get</div>
+
+        <button id="get-location" class="button-12">
+          <div class="loading nav" style="display: none"></div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            fill="currentColor"
+            class="bi bi-crosshair"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M8.5.5a.5.5 0 0 0-1 0v.518A7.001 7.001 0 0 0 1.018 7.5H.5a.5.5 0 0 0 0 1h.518A7.001 7.001 0 0 0 7.5 14.982v.518a.5.5 0 0 0 1 0v-.518A7.001 7.001 0 0 0 14.982 8.5h.518a.5.5 0 0 0 0-1h-.518A7.001 7.001 0 0 0 8.5 1.018zm-6.48 7A6.001 6.001 0 0 1 7.5 2.02v.48a.5.5 0 0 0 1 0v-.48a6.001 6.001 0 0 1 5.48 5.48h-.48a.5.5 0 0 0 0 1h.48a6.002 6.002 0 0 1-5.48 5.48v-.48a.5.5 0 0 0-1 0v.48A6.001 6.001 0 0 1 2.02 8.5h.48a.5.5 0 0 0 0-1h-.48M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4"
+            />
+          </svg>
+        </button>
+
+        <div>location</div>
+      </div>
+    </section>
+
+    <div class="weather-container flx jc-center hidden">
+      <section
+        id="weather-section"
+        class="flx col weather-data"
+        style="opacity: 1"
+      >
+        <div class="flx jc-sb ai-center">
+          <div class="location-header">location</div>
+          <div class="last-updated">
+            Last Updated:
+            <span id="last-updated-val" style="font-weight: bold"></span>
+          </div>
+        </div>
+        <div class="flx daily"></div>
+
+        <div class="hourly-container flx">
+          <div class="jump before">
+            <button id="jump-before" role="button" class="jump button-12 d_">
+              D-1
+            </button>
+          </div>
+          <div class="flx hourly"></div>
+          <div class="jump next">
+            <button id="jump-after" role="button" class="jump button-12 d_">
+              D+1
+            </button>
+          </div>
+        </div>
+
+        <div class="day-footer flx col">
+          <div class="uv-pollution-sun flx">
+            <div class="uv-poll flx">
+              <div class="quality uv flx">
+                <div class="rel">
+                  <svg
+                    id="uv-ico"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="40"
+                    height="40"
+                    fill="currentcolor"
+                    class="bi bi-diamond-fill"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M6.95.435c.58-.58 1.52-.58 2.1 0l6.515 6.516c.58.58.58 1.519 0 2.098L9.05 15.565c-.58.58-1.519.58-2.098 0L.435 9.05a1.482 1.482 0 0 1 0-2.098L6.95.435z"
+                    />
+                  </svg>
+
+                  <div id="uv-val" class="value abs"></div>
+                </div>
+                <div class="descr">UV</div>
+              </div>
+
+              <div class="quality pollution flx">
+                <div class="rel flx">
+                  <svg
+                    id="pollution-ico"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="40"
+                    height="40"
+                    fill="currentcolor"
+                    class="bi bi-diamond-fill"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M6.95.435c.58-.58 1.52-.58 2.1 0l6.515 6.516c.58.58.58 1.519 0 2.098L9.05 15.565c-.58.58-1.519.58-2.098 0L.435 9.05a1.482 1.482 0 0 1 0-2.098L6.95.435z"
+                    />
+                  </svg>
+                  <div id="pollution-val" class="value abs"></div>
+                </div>
+                <div class="descr">Pollution</div>
+              </div>
+            </div>
+            <div class="sun-behaviour flx">
+              <div class="sunrise flx">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="40"
+                  height="40"
+                  fill="orange"
+                  class="bi bi-sunrise-fill"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M7.646 1.146a.5.5 0 0 1 .708 0l1.5 1.5a.5.5 0 0 1-.708.708L8.5 2.707V4.5a.5.5 0 0 1-1 0V2.707l-.646.647a.5.5 0 1 1-.708-.708zM2.343 4.343a.5.5 0 0 1 .707 0l1.414 1.414a.5.5 0 0 1-.707.707L2.343 5.05a.5.5 0 0 1 0-.707m11.314 0a.5.5 0 0 1 0 .707l-1.414 1.414a.5.5 0 1 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0M11.709 11.5a4 4 0 1 0-7.418 0H.5a.5.5 0 0 0 0 1h15a.5.5 0 0 0 0-1h-3.79zM0 10a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2A.5.5 0 0 1 0 10m13 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5"
+                  />
+                </svg>
+                <div id="sunrise-val" class="value"></div>
+              </div>
+              <div class="sunset flx">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="40"
+                  height="40"
+                  fill="darkorange"
+                  class="bi bi-sunset"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M7.646 4.854a.5.5 0 0 0 .708 0l1.5-1.5a.5.5 0 0 0-.708-.708l-.646.647V1.5a.5.5 0 0 0-1 0v1.793l-.646-.647a.5.5 0 1 0-.708.708l1.5 1.5zm-5.303-.51a.5.5 0 0 1 .707 0l1.414 1.413a.5.5 0 0 1-.707.707L2.343 5.05a.5.5 0 0 1 0-.707zm11.314 0a.5.5 0 0 1 0 .706l-1.414 1.414a.5.5 0 1 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zM8 7a3 3 0 0 1 2.599 4.5H5.4A3 3 0 0 1 8 7m3.71 4.5a4 4 0 1 0-7.418 0H.499a.5.5 0 0 0 0 1h15a.5.5 0 0 0 0-1h-3.79zM0 10a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2A.5.5 0 0 1 0 10m13 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5"
+                  />
+                </svg>
+                <div id="sunset-val" class="value"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
