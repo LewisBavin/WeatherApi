@@ -1,29 +1,22 @@
-export function qs(selector, parent = document) {
-  return parent.querySelector(selector);
-}
+export const qs = (selector, parent = document) =>
+  // query selector shorthand
+  parent.querySelector(selector);
 
-export function qsa(selector, parent = document) {
-  return Array.from(parent.querySelectorAll(selector));
-}
+export const qsa = (selector, parent = document) =>
+  // query selector all shorthand
+  Array.from(parent.querySelectorAll(selector));
 
-export function setScrollPosition(
-  htmlEl,
-  stepNum,
-  stepTot,
-  adjuster = () => {}
-) {
-  htmlEl.scrollLeft = adjuster(
+export const getById = (id) =>
+  // get element by id shorthand
+  document.getElementById(id);
+
+export function setScrollPosition(htmlEl, stepNum, stepTot, adjust = () => {}) {
+  htmlEl.scrollLeft = adjust(
     ((htmlEl.scrollWidth - htmlEl.offsetWidth) * stepNum) / stepTot
   );
 }
 
 export function createHtmlNode(appendTo, obj) {
-  // It might seam convoluted but it makes creating nested nodes so much easier.
-  // Any needed changes to the node can be made clearly as the object
-  // visually immitates what it would look like in html.
-  // Blocks of code specific to each element can be inserted too to set behaviour's for each nested
-  // node element as its being created
-
   let el = null;
   obj.hasOwnProperty("tag")
     ? obj.tag == "svg" || obj.tag == "use"
@@ -31,9 +24,9 @@ export function createHtmlNode(appendTo, obj) {
       : (el = document.createElement(obj.tag))
     : (el = document.createElement("div"));
 
-  if (obj.hasOwnProperty("class")) el.className = obj.class;
-  if (obj.hasOwnProperty("doWith")) obj.doWith(el);
-  if (obj.hasOwnProperty("innerHTML")) el.innerHTML = obj.innerHTML;
+  obj.hasOwnProperty("class") ? (el.className = obj.class) : null;
+  obj.hasOwnProperty("doWith") ? obj.doWith(el) : null;
+  obj.hasOwnProperty("innerHTML") ? (el.innerHTML = obj.innerHTML) : null;
   if (obj.hasOwnProperty("atts")) {
     for (let att in obj.atts) {
       el.setAttribute(att, obj.atts[att]);

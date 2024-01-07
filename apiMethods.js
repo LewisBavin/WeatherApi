@@ -4,7 +4,6 @@ export const weatherDaily = "3.0/onecall",
   airPolution4day = "2.5/air_pollution/forecast";
 
 export function getWeather(getType, coords, exclude = "") {
-  // return getType specific axios.get Promise for use in later async functions
   return axios.get(
     getStringWeather(
       weatherRoot,
@@ -35,7 +34,7 @@ const weatherId2 = "ca429587120958372688ff3694ce726b";
 const weatherId3 = "b0ac282f0c354b0668435393d621685c";
 const weatherCurrentId = weatherId1;
 const geoRoot = "https://api.geoapify.com/v1/geocode";
-const geoId = "7fe3fded3c304c2fba46a2ab6cc41783";
+const geoId = "26b3075e8d6f452087abe020258cc660";
 
 function getStringWeather(root, type, lat, lon, id, exclude = "") {
   return exclude == ""

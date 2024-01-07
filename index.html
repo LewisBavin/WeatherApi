@@ -5,23 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LEWEATHER</title>
     <link rel="stylesheet" href="./index.css" />
-
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
     <script type="module" src="./apiMethods.js"></script>
-
     <script type="module" src="./Main.js"></script>
   </head>
+
   <body>
     <svg style="display: none" aria-hidden="true">
       <defs>
-        <symbol viewBox="0 0 32 32" id="wind-direction">
+        <symbol
+          id="diamond"
+          width="40"
+          height="40"
+          fill="currentcolor"
+          class="bi bi-diamond-fill"
+          viewBox="0 0 16 16"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M6.95.435c.58-.58 1.52-.58 2.1 0l6.515 6.516c.58.58.58 1.519 0 2.098L9.05 15.565c-.58.58-1.519.58-2.098 0L.435 9.05a1.482 1.482 0 0 1 0-2.098L6.95.435z"
+          />
+        </symbol>
+        <symbol viewBox="0 0 32 32" id="wind-direction" fill="white">
           <path
             d="M16.8 6.6v-3.6l2.1 2.1 1.1-1.1-4-4-4 4 1.1 1.1 2.1-2.1v3.6"
           ></path>
           <circle
             fill="none"
-            stroke="#000000"
+            stroke="grey"
             stroke-width="1"
             cx="16"
             cy="16"
@@ -47,6 +58,10 @@
         <div class="header-min">a first foray into asynchronicity</div>
       </div>
     </header>
+
+    <div id="alert" class="alert flx jc-center ai-center">
+      this is my alert box
+    </div>
 
     <section id="locations" class="flx jc-center ai-center">
       <div class="loading weather" style="display: none"></div>
@@ -91,11 +106,11 @@
         class="flx col weather-data"
         style="opacity: 1"
       >
-        <div class="flx jc-sb ai-center">
-          <div class="location-header">location</div>
-          <div class="last-updated">
-            Last Updated:
-            <span id="last-updated-val" style="font-weight: bold"></span>
+        <div class="location-header flx jc-sb">
+          <div id="location-header"></div>
+          <div class="flx">
+            <div>Last Updated:</div>
+            <div id="last-updated-val" style="font-weight: bold"></div>
           </div>
         </div>
         <div class="flx daily"></div>
@@ -106,7 +121,9 @@
               D-1
             </button>
           </div>
-          <div class="flx hourly"></div>
+          <div class="flx hourly">
+            <div id="no-data" class="flx hour data"><div>No Hourly Data</div></div>
+          </div>
           <div class="jump next">
             <button id="jump-after" role="button" class="jump button-12 d_">
               D+1
@@ -174,7 +191,10 @@
                     d="M7.646 1.146a.5.5 0 0 1 .708 0l1.5 1.5a.5.5 0 0 1-.708.708L8.5 2.707V4.5a.5.5 0 0 1-1 0V2.707l-.646.647a.5.5 0 1 1-.708-.708zM2.343 4.343a.5.5 0 0 1 .707 0l1.414 1.414a.5.5 0 0 1-.707.707L2.343 5.05a.5.5 0 0 1 0-.707m11.314 0a.5.5 0 0 1 0 .707l-1.414 1.414a.5.5 0 1 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0M11.709 11.5a4 4 0 1 0-7.418 0H.5a.5.5 0 0 0 0 1h15a.5.5 0 0 0 0-1h-3.79zM0 10a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2A.5.5 0 0 1 0 10m13 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5"
                   />
                 </svg>
-                <div id="sunrise-val" class="value"></div>
+                <div class="sunrise-vals">
+                  <div id="sunrise-val" class="your"></div>
+                  <div id="sunrise-val-local" class="local"></div>
+                </div>
               </div>
               <div class="sunset flx">
                 <svg
@@ -189,8 +209,18 @@
                     d="M7.646 4.854a.5.5 0 0 0 .708 0l1.5-1.5a.5.5 0 0 0-.708-.708l-.646.647V1.5a.5.5 0 0 0-1 0v1.793l-.646-.647a.5.5 0 1 0-.708.708l1.5 1.5zm-5.303-.51a.5.5 0 0 1 .707 0l1.414 1.413a.5.5 0 0 1-.707.707L2.343 5.05a.5.5 0 0 1 0-.707zm11.314 0a.5.5 0 0 1 0 .706l-1.414 1.414a.5.5 0 1 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zM8 7a3 3 0 0 1 2.599 4.5H5.4A3 3 0 0 1 8 7m3.71 4.5a4 4 0 1 0-7.418 0H.499a.5.5 0 0 0 0 1h15a.5.5 0 0 0 0-1h-3.79zM0 10a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2A.5.5 0 0 1 0 10m13 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5"
                   />
                 </svg>
-                <div id="sunset-val" class="value"></div>
+                <div class="sunset-vals">
+                  <div id="sunset-val"></div>
+                  <div id="sunset-val-local" class="local"></div>
+                </div>
               </div>
+            </div>
+          </div>
+          <div class="timezones">
+            <div class="timezone-browser">Time Zone: GMT (+0.00 Hs)</div>
+            <div class="timezone-local local hidden">
+              <span>Local Time Zone: </span>
+              <span id="local-zone"></span>
             </div>
           </div>
         </div>

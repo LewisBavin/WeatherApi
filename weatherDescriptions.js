@@ -1,21 +1,3 @@
-export function rainDescription(pop) {
-  let str = "";
-  if (pop < 15) {
-    str = "Rain not expected";
-  } else if (pop < 33) {
-    str = "Rain not likely";
-  } else if (pop < 50) {
-    str = "Potential for rain";
-  } else if (pop < 70) {
-    str = "Rain Likely";
-  } else if (pop < 85) {
-    str = "Rain highly likely";
-  } else {
-    str = "Get ya fkn brolley out";
-  }
-  return str;
-}
-
 export const qualityColours = {
   L: "green",
   M: "yellow",
@@ -24,15 +6,33 @@ export const qualityColours = {
   EX: "darkred",
 };
 
-export function uvDescription(pop) {
+export function rainDescription(val) {
   let str = "";
-  if (pop < 3) {
+  if (val < 15) {
+    str = "Rain not expected";
+  } else if (val < 33) {
+    str = "Rain not likely";
+  } else if (val < 50) {
+    str = "Potential for rain";
+  } else if (val < 70) {
+    str = "Rain Likely";
+  } else if (val < 85) {
+    str = "Rain highly likely";
+  } else {
+    str = "Get ya fkn brolley out";
+  }
+  return str;
+}
+
+export function uvDescription(val) {
+  let str = "";
+  if (val < 3) {
     str = "L";
-  } else if (pop < 6) {
+  } else if (val < 6) {
     str = "M";
-  } else if (pop < 8) {
+  } else if (val < 8) {
     str = "H";
-  } else if (pop < 11) {
+  } else if (val < 11) {
     str = "VH";
   } else {
     str = "EX!";
@@ -40,15 +40,15 @@ export function uvDescription(pop) {
   return str;
 }
 
-export function pollutionDescription(pop) {
+export function pollutionDescription(val) {
   let str = "";
-  if (pop < 50) {
+  if (val < 50) {
     str = "L";
-  } else if (pop < 100) {
+  } else if (val < 100) {
     str = "M";
-  } else if (pop < 150) {
+  } else if (val < 150) {
     str = "H";
-  } else if (pop < 200) {
+  } else if (val < 200) {
     str = "VH";
   } else {
     str = "EX!";
@@ -56,13 +56,13 @@ export function pollutionDescription(pop) {
   return str;
 }
 
-export function windDirection(deg) {
+export function windDirection(degree) {
   let str = "";
-  if (deg < 90) {
+  if (degree < 90) {
     str = "South West";
-  } else if (deg < 180) {
+  } else if (degree < 180) {
     str = "North West";
-  } else if (deg < 270) {
+  } else if (degree < 270) {
     str = "North East";
   } else {
     str = "South East";
@@ -70,53 +70,53 @@ export function windDirection(deg) {
   return str;
 }
 
-export function windDescription(B, deg) {
+export function windDescription(val, degree) {
   let str = "";
-  let dir = windDirection(deg);
-  B = Math.round(B / 1.2);
+  let direction = windDirection(degree);
+  val = Math.round(val / 1.2);
 
-  switch (B) {
+  switch (val) {
     case 0:
       str = `Calm - No Winds`;
       break;
 
     case 1:
-      str = `Light air from the ` + dir;
+      str = `Light air from the ` + direction;
       break;
 
     case 2:
-      str = `Light breeze from the ` + dir;
+      str = `Light breeze from the ` + direction;
       break;
 
     case 3:
-      str = `Gentle breeze from the ` + dir;
+      str = `Gentle breeze from the ` + direction;
       break;
 
     case 4:
-      str = `Moderate breeze from the ` + dir;
+      str = `Moderate breeze from the ` + direction;
       break;
 
     case 5:
-      str = `Fresh breeze from the ` + dir;
+      str = `Fresh breeze from the ` + direction;
       break;
 
     case 6:
-      str = `Strong breeze from the ` + dir;
+      str = `Strong breeze from the ` + direction;
       break;
 
     case 7:
-      str = `Near gale from the ` + dir;
+      str = `Near gale from the ` + direction;
       break;
 
     case 8:
-      str = `Gale from the ` + dir;
+      str = `Gale from the ` + direction;
       break;
 
     case 9:
-      str = `Strong gale from the ` + dir;
+      str = `Strong gale from the ` + direction;
       break;
     default:
-      str = `Storm from the ` + dir;
+      str = `Storm from the ` + direction;
       break;
   }
   return str;

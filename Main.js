@@ -1,10 +1,10 @@
-import { format } from "https://cdn.skypack.dev/date-fns";
+import { format } from "https://unpkg.com/date-fns/format.mjs";
 import {
   insertHourlyHTML,
   insertDailyHTML,
   clearWeather,
 } from "./DomInserts.js";
-import { qs, qsa } from "./DomMethods.js";
+import { qs, qsa, getById } from "./DomMethods.js";
 import {
   weather5day3Hour,
   weatherCurrent,
@@ -15,39 +15,46 @@ import {
 } from "./apiMethods.js";
 
 const { log, clear } = console;
-const Coords = { txt: null, lon: null, lat: null };
+const Coords = {
+  txt: null,
+  lon: null,
+  lat: null,
+};
+
 var jumpButtonsInitialised = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-  const locations = document.getElementById("location"),
-    hereButton = document.getElementById("get-location"),
-    lastUpdated = document.getElementById("last-updated-val"),
-    suggestions = document.getElementById("autocompleteOff"),
-    locationHeader = qs(".location-header"),
+  const locations = getById("location"),
+    hereButton = getById("get-location"),
+    lastUpdated = getById("last-updated-val"),
+    suggestions = getById("autocompleteOff"),
+    locationHeader = getById("location-header"),
     weatherContainer = qs(".weather-container"),
     spinnerNav = qs(".loading.nav"),
     spinnerWeather = qs(".loading.weather");
 
-  function getAllWeather() {
-    clearWeather();
-    Promise.all([importCurrent(), importHourly(), importDaily()]).then(() => {
-      qs(".daily").firstChild.click();
-      !jumpButtonsInitialised
-        ? (() => {
-            qsa(".jump.button-12").forEach((button) => {
-              button.addEventListener("click", () => {
-                qs(`.${button.classList[2]}`, qs(".daily")).click();
-              });
-            });
-            jumpButtonsInitialised = true;
-          })()
-        : null;
-      lastUpdated.innerHTML = format(new Date(), "HH:mm");
+  (function CurrentLocationClick() {
+    hereButton.addEventListener("click", async () => {
+      weatherContainer.classList.remove("show");
+      qs("svg", hereButton).style.display = "none";
+      spinnerNav.style.display = null;
+
+      try {
+        let data = await getNavLocation();
+        Coords.lon = data.coords.longitude;
+        Coords.lat = data.coords.latitude;
+        let geoData = await geoQuery("reverse", Coords);
+        Coords.txt = geoData.data.features[0].properties.formatted;
+        locations.value = Coords.txt;
+        getAllWeather();
+      } catch (err) {
+        fadeAlert(err, 3000, "couldn't get current location");
+      } finally {
+        spinnerNav.style.display = "none";
+        qs("svg", hereButton).style.display = null;
+      }
     });
-    locationHeader.innerHTML = Coords.txt;
-    locations.value = "";
-    weatherContainer.classList.add("show");
-  }
+  })();
 
   (function PopulateLocationSuggestions() {
     locations.addEventListener("input", async (ev) => {
@@ -70,7 +77,9 @@ document.addEventListener("DOMContentLoaded", () => {
           } else {
             suggestions.innerHTML = null;
           }
-        } catch {}
+        } catch (err) {
+          fadeAlert(err, 3000, "Could not get autocomplete data");
+        }
       } else {
         suggestions.innerHTML = null;
       }
@@ -82,65 +91,70 @@ document.addEventListener("DOMContentLoaded", () => {
       if (locations.value.length >= 3) {
         weatherContainer.classList.remove("show");
         spinnerWeather.style.display = "block";
-        let sendLocation = (await geoQuery("autocomplete", Coords)).data
-          .features[0].properties;
-        Coords.txt = sendLocation.formatted;
-        Coords.lat = sendLocation.lat;
-        Coords.lon = sendLocation.lon;
-        getAllWeather();
+        try {
+          let sendLocation = (await geoQuery("autocomplete", Coords)).data
+            .features[0].properties;
+          Coords.txt = sendLocation.formatted;
+          Coords.lat = sendLocation.lat;
+          Coords.lon = sendLocation.lon;
+          getAllWeather();
+        } catch (err) {
+          log(err);
+          fadeAlert(
+            err,
+            3000,
+            "Please select a valid location from the dropdown",
+            true
+          );
+        }
         spinnerWeather.style.display = "none";
       }
     });
   })();
 
-  (function CurrentLocationClick() {
-    hereButton.addEventListener("click", async () => {
-      weatherContainer.classList.remove("show");
-      qs("svg", hereButton).style.display = "none";
-      spinnerNav.style.display = null;
-
-      try {
-        let data = await getNavLocation();
-        Coords.lon = data.coords.longitude;
-        Coords.lat = data.coords.latitude;
-        Coords.txt = (
-          await geoQuery("reverse", Coords)
-        ).data.features[0].properties.formatted;
-        locations.value = Coords.txt;
-        getAllWeather();
-      } catch {
-      } finally {
-        spinnerNav.style.display = "none";
-        qs("svg", hereButton).style.display = null;
-      }
-    });
-  })();
+  function getAllWeather() {
+    clearWeather();
+    Promise.all([
+      importData(weatherCurrent),
+      importData(weather5day3Hour),
+      importData(weatherDaily, "hourly,minutely"),
+    ])
+      .then((val) => {
+        qs(".daily").firstChild.click();
+        !jumpButtonsInitialised
+          ? (function initialiseButtons() {
+              qsa(".jump.button-12").forEach((button) => {
+                button.addEventListener("click", () => {
+                  qs(`.${button.classList[2]}`, qs(".daily")).click();
+                });
+              });
+              jumpButtonsInitialised = true;
+            })()
+          : null;
+        lastUpdated.innerHTML = format(new Date(), "HH:mm");
+        locationHeader.innerHTML = Coords.txt;
+        locations.value = "";
+        weatherContainer.classList.add("show");
+        setNull(Coords);
+      })
+      .catch((err) => fadeAlert(err, 3000, "could not import data"));
+  }
 });
 
-async function importDaily() {
-  try {
-    let data = (await getWeather(weatherDaily, Coords, "hourly,minutely")).data
-      ;
-    let pollList = (await getWeather(airPolution4day, Coords)).data.list;
-    log("daily", data)
-    insertDailyHTML(data.daily, pollList);
-  } catch {}
-}
-
-async function importHourly() {
-  try {
-    let data = (await getWeather(weather5day3Hour, Coords)).data;
-    log("houtly", data)
-    insertHourlyHTML(data);
-  } catch {}
-}
-
-async function importCurrent() {
-  try {
-    let data = (await getWeather(weatherCurrent, Coords)).data;
-    log("current", data)
-    insertHourlyHTML(data, true);
-  } catch {}
+function importData(getType, exclude = "") {
+  return new Promise((resolve, reject) => {
+    getWeather(getType, Coords, exclude)
+      .then(async (data) => {
+        if (getType == weatherCurrent) insertHourlyHTML(data.data, true);
+        if (getType == weather5day3Hour) insertHourlyHTML(data.data);
+        if (getType == weatherDaily) {
+          let pollList = (await getWeather(airPolution4day, Coords)).data.list;
+          insertDailyHTML(data.data, pollList);
+        }
+        resolve(data.data);
+      })
+      .catch((err) => reject(err));
+  });
 }
 
 function getNavLocation() {
@@ -154,3 +168,22 @@ function getNavLocation() {
     }
   });
 }
+
+function fadeAlert(err, ms, customMessage = "", overide = false) {
+  let el = getById("alert");
+  el.innerHTML = !customMessage
+    ? err.message
+    : overide
+    ? customMessage
+    : err.message + "\n" + customMessage;
+  el.classList.add("show");
+  setTimeout(() => {
+    el.classList.remove("show");
+    setTimeout(() => {
+      el.innerHTML = null;
+    }, 1000);
+  }, ms);
+}
+
+let setAll = (obj, val) => Object.keys(obj).forEach((k) => (obj[k] = val));
+let setNull = (obj) => setAll(obj, null);

@@ -21,6 +21,28 @@ span.dark {
   color: rgb(36, 36, 36);
 }
 
+.alert {
+  position: absolute;
+  text-align: center;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+    rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
+    rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  
+    left: 40vw;
+  top: -32vh;
+  width: 200px;
+  height: 100px;
+  padding: 10px;
+  background-color: rgb(180, 26, 26);
+  z-index: 10;
+  transition: ease-in-out;
+  transition-duration: 1s;
+}
+
+.alert.show {
+  top: 10vh;
+}
+
 .header-max {
   font-size: 55px;
 }
@@ -97,6 +119,7 @@ span.dark {
   transition-duration: 0.2s;
   position: absolute;
   right: 50%;
+  
 }
 
 .weather-container.show {
@@ -113,12 +136,22 @@ span.dark {
   opacity: 1;
   border-radius: 8%;
   align-items: center;
+  
 }
 
 .location-header {
-  width: fit-content;
-  height: 30px;
-  margin: 10px;
+  padding: 5px;
+  gap: 32px;
+
+  background-color: rgb(40, 50, 60);
+}
+.local {
+  color: blueviolet;
+  font-style: italic;
+}
+
+.local.hidden {
+  display: none;
 }
 
 .daily {
@@ -175,14 +208,14 @@ span.dark {
 
 .hourly .data,
 .daily .data,
-.day-footer {
+.day-footer,
+.location-header {
   border: 1px solid grey;
   background-color: rgb(30, 30, 30);
 }
 
 .hourly .data.hidden {
   display: none;
-  
 }
 
 .hourly .visible {
@@ -199,10 +232,9 @@ span.dark {
 
 .hourly .weather-ico {
   height: 50px;
-  
 }
 
-.weather-ico > img{
+.weather-ico > img {
   filter: brightness(2);
 }
 
@@ -344,6 +376,11 @@ button.hidden {
 
 #location::placeholder {
   color: whitesmoke;
+}
+
+#no-data{
+  align-items: center;
+  padding: 10px
 }
 
 .last-updated {
